@@ -1,0 +1,73 @@
+mx-manager End-User License Agreement (EULA)
+Version: 1.0
+Effective Date: May 20, 2026
+
+Licensor: Kevin Schwartz ("Licensor").
+Software: "mx-manager" (including utilities, scripts, templates, configuration files, and documentation).
+Licensee: The person or entity that installs or uses the Software ("You" or "Licensee").
+
+By installing, copying, or using the Software, You agree to be bound by this EULA.
+
+1. DEFINITIONS
+1.1 "Authorized Users" means Your employees and contractors acting on Your behalf.
+1.2 "Seat" means the right for one Authorized User to use the Software.
+1.3 "Production Use" means use in live environments processing real business or customer data.
+1.4 "Order" means any quote, invoice, checkout page, or other ordering document for paid licenses, including number of Seats, term, and price.
+1.5 "Updates" means bug fixes, patches, and minor enhancements that Licensor chooses to make available.
+
+2. LICENSE GRANT
+Subject to Your compliance with this EULA and, for paid licenses, timely payment, Licensor grants You a non-exclusive, non-transferable, non-sublicensable license to: (a) install and run the Software up to the number of Seats specified in Your Order (or one (1) Seat if none is specified), (b) for Your internal business purposes (including commercial use for Your own operations), and (c) for the License Term specified in the Order (or perpetual for the current version if no term is stated and fees are fully paid).
+
+3. LICENSE TYPES
+3.1 Evaluation License. If provided without charge for evaluation, You may use the Software for thirty (30) days in non-production environments to assess functionality. No support or uptime commitments.
+3.2 Commercial License. Paid license for the Seats/term in Your Order. Includes access to Updates released during the License Term. Support is as stated in the Order or Licensor's support policy.
+3.3 Community/Free License (Optional). If Licensor publishes a free tier, its scope/restrictions govern that tier. If terms conflict, the more restrictive terms apply to the free tier.
+
+4. RESTRICTIONS
+You shall not (and shall not permit anyone to): (a) copy, modify, translate, adapt, or create derivative works of the Software; (b) reverse-engineer, decompile, disassemble, or otherwise attempt to derive source code or underlying ideas, except to the extent prohibited by applicable law; (c) rent, lease, sell, sublicense, assign, distribute, publish, or make the Software available to third parties, including as part of a managed service or timesharing arrangement; (d) use the Software to build a competing product or for competitive analysis beyond what is otherwise permitted by law; (e) remove or alter proprietary notices or license keys; (f) exceed the licensed Seats or otherwise circumvent technical limits. Licensor may provide a license key or online activation; You agree not to bypass or tamper with such mechanisms.
+
+5. OWNERSHIP
+The Software is licensed, not sold. Licensor and its licensors retain all right, title, and interest in and to the Software, including all intellectual property rights. No rights are granted by implication or estoppel.
+
+6. THIRD-PARTY COMPONENTS
+The Software may include or depend on third-party open-source or proprietary components governed by their own licenses ("Third-Party Components"). Those licenses are identified in a "Third-Party Notices" file or documentation. To the extent required by those licenses, their terms supersede this EULA for those components.
+
+7. PAYMENT; TAXES (COMMERCIAL LICENSES)
+Fees are due as stated in the Order and are non-refundable once delivery occurs, except as expressly provided here. Prices exclude taxes; You are responsible for any applicable taxes, duties, or withholdings (excluding Licensor's income taxes).
+
+8. SUPPORT & UPDATES
+For Commercial Licenses, Licensor will provide Updates released during the License Term. Support, if any, is as described in the Order or Licensor's then-current support policy. Licensor has no obligation to develop new features or maintain backward compatibility.
+
+9. CONFIDENTIALITY
+Any non-public information disclosed by one party to the other in connection with this EULA is "Confidential Information." The receiving party will protect it using reasonable care and use it only to perform this EULA. This section does not limit disclosures required by law, subject to notice where legally permitted.
+
+10. FEEDBACK
+If You provide feedback, ideas, or suggestions, Licensor may use them without restriction or attribution.
+
+11. TERM; TERMINATION
+11.1 This EULA begins upon Your first installation or use and continues until terminated.
+11.2 Licensor may suspend or terminate this EULA and Your license immediately if You breach any term and fail to cure (if curable) within ten (10) days of notice. Evaluation Licenses terminate automatically at the end of the evaluation period.
+11.3 Upon termination, You must stop using and uninstall the Software and destroy all copies. Sections intended to survive (including 4–6, 9–10, 12–18) remain in effect.
+
+12. DISCLAIMER OF WARRANTIES
+THE SOFTWARE IS PROVIDED "AS IS" AND "AS AVAILABLE." LICENSOR DISCLAIMS ALL WARRANTIES, EXPRESS OR IMPLIED, INCLUDING MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, AND NON-INFRINGEMENT. LICENSOR DOES NOT WARRANT THAT THE SOFTWARE WILL BE ERROR-FREE OR UNINTERRUPTED.
+
+13. LIMITATION OF LIABILITY
+TO THE MAXIMUM EXTENT PERMITTED BY LAW, LICENSOR WILL NOT BE LIABLE FOR INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL, EXEMPLARY, OR PUNITIVE DAMAGES (INCLUDING LOST PROFITS, REVENUE, GOODWILL, OR DATA) EVEN IF ADVISED OF THE POSSIBILITY. LICENSOR'S AGGREGATE LIABILITY FOR ALL CLAIMS WILL NOT EXCEED THE AMOUNTS PAID BY YOU TO LICENSOR FOR THE SOFTWARE IN THE TWELVE (12) MONTHS PRECEDING THE CLAIM (OR USD $100 FOR EVALUATION OR FREE LICENSES). THESE LIMITATIONS APPLY NOTWITHSTANDING ANY FAILURE OF ESSENTIAL PURPOSE.
+
+14. COMPLIANCE; AUDIT
+During the License Term and for one (1) year thereafter, You will maintain accurate records of usage sufficient to demonstrate compliance. On reasonable notice (no more than once per year), Licensor may request a self-certification or reasonable system-generated report (not source code) to verify Seat counts. If an audit reveals under-licensing, You will promptly purchase additional Seats; material shortfalls may incur reasonable audit costs.
+
+15. EXPORT; SANCTIONS
+You shall not export or re-export the Software in violation of applicable export or sanctions laws (including U.S. laws). You represent that You are not a sanctioned person or in a restricted jurisdiction.
+
+16. GOVERNMENT USE
+If used by or for the U.S. Government, the Software is "Commercial Computer Software" and licensed only with the rights set forth in this EULA per FAR 12.212 or DFARS 227.7202, as applicable.
+
+17. ASSIGNMENT
+You may not assign or transfer this EULA (including by change of control) without Licensor's prior written consent. Licensor may assign to an affiliate or in connection with a merger, acquisition, or sale of assets.
+
+18. GENERAL
+This EULA, together with any Order, constitutes the entire agreement regarding the Software and supersedes all prior or contemporaneous communications. If there is a conflict, the Order prevails over this EULA only as to pricing, Seat counts, and term. Any amendments must be in writing and signed by both parties. If any provision is unenforceable, it will be modified to the minimum extent necessary to be enforceable; the rest remains in effect. Governing law: the laws of the State of California, excluding conflict-of-law rules. Venue: state or federal courts located in San Francisco County, California; the parties consent to personal jurisdiction. Each party is an independent contractor.
+
+Contact: KevinJ.Schwartz@proton.me

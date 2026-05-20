@@ -1,0 +1,4 @@
+rich
+pandas
+openpyxl
+typing_extensions

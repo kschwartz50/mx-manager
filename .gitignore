@@ -1,0 +1,46 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyc
+*$py.class
+*.egg-info/
+dist/
+build/
+
+# Virtual environments
+.venv/
+.venv
+venv/
+env/
+.env
+
+# Test / lint caches
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+
+# macOS
+.DS_Store
+docs/.DS_Store
+src/.DS_Store
+
+# Runtime data (source configs, exports, migrations)
+data/
+
+# Config files (may contain credentials or device-specific data)
+*config*
+
+# Source XML device configs
+*.xml
+
+# Junos / vendor diagrams
+diagrams/
+
+# Private docs
+docs-private/
+
+# Dev artifacts
+src-backups/
+test-*
+_*.sh
+*.code-workspace
