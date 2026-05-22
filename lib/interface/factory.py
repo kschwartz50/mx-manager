@@ -248,26 +248,43 @@ class InterfaceFactory:
         if "inet" in unit_dict:
             inet_data = unit_dict["inet"]
             addresses = inet_data.get("addresses", [])
+            vrrp_vip = inet_data.get("vrrp_virtual_address")
 
-            # Start with explicit flags from the parser, then apply the same
-            # deterministic fallback srx-manager uses when no flag is set.
-            primary = inet_data.get("primary_address")
+            # Priority order for primary_address:
+            #   1. VRRP virtual-address — this is the gateway IP clients use,
+            #      so it is the most meaningful "primary" for IRB units.
+            #   2. Explicit Junos <primary/> flag from the parser.
+            #   3. Deterministic fallback: numerically lowest configured address.
+            if vrrp_vip:
+                primary = vrrp_vip
+            else:
+                primary = inet_data.get("primary_address")
+
             preferred = inet_data.get("preferred_address")
 
             if addresses:
                 if len(addresses) == 1:
-                    # Single address is both primary and preferred.
-                    primary = primary or addresses[0]
-                    preferred = preferred or addresses[0]
+                    # Single address is both primary and preferred when no
+                    # higher-priority override (VIP or explicit flag) is set.
+                    # When a VRRP VIP is present it already owns primary, so
+                    # skip the primary fallback but still apply preferred only
+                    # if it was explicitly flagged by the parser (not the
+                    # single-address shortcut — that would misleadingly mark
+                    # the physical IP as "preferred" when the VIP is primary).
+                    if not vrrp_vip:
+                        primary = primary or addresses[0]
+                        preferred = preferred or addresses[0]
                 else:
                     lowest_ip = self._get_numerically_lowest_ip(addresses)
                     primary = primary or lowest_ip
-                    preferred = preferred or lowest_ip
+                    if not vrrp_vip:
+                        preferred = preferred or lowest_ip
 
             node.inet = FamilyInetSpec(
                 addresses=addresses,
                 primary_address=primary,
                 preferred_address=preferred,
+                vrrp_virtual_address=vrrp_vip,
                 mtu=inet_data.get("mtu"),
                 sampling_input=inet_data.get("sampling_input", False),
                 sampling_output=inet_data.get("sampling_output", False),

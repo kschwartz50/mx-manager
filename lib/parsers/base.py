@@ -34,6 +34,10 @@ class FamilyDict(TypedDict):
     addresses: List[str]
     primary_address: NotRequired[Optional[str]]
     preferred_address: NotRequired[Optional[str]]
+    # First VRRP virtual-address found on any address in this family.
+    # Bare IP, no prefix-length (e.g. "159.153.132.1").  Only set for inet;
+    # inet6 VRRP is uncommon on MX and not currently parsed.
+    vrrp_virtual_address: NotRequired[Optional[str]]
 
     mtu: NotRequired[int]
     sampling_input: NotRequired[bool]

@@ -35,12 +35,18 @@ class FamilyInetSpec:
 
     Attributes:
         addresses: All configured inet addresses in CIDR form.
-        primary_address: Junos ``primary`` — used as the source for locally
-            sourced broadcast/multicast and, on SRX, for NAT. The parser
-            captures explicit ``<primary/>`` flags; the factory fills a
-            deterministic fallback when none is set.
+        primary_address: The effective primary address for this unit.  When a
+            VRRP group is configured this is the VRRP virtual-address (bare IP,
+            no prefix-length), because that is the gateway address clients
+            actually use.  Without VRRP, the parser's explicit ``<primary/>``
+            flag wins; when neither is set the factory falls back to the
+            numerically lowest configured address in CIDR form.
         preferred_address: Junos ``preferred`` — used as the default local
             source for routed traffic on the subnet.
+        vrrp_virtual_address: Raw VRRP virtual-address exactly as parsed
+            (bare IP, no prefix-length, e.g. ``"159.153.132.1"``).  ``None``
+            when no VRRP group is configured on this family.  The resolver
+            uses this to surface the VIP distinctly in annotated output.
         mtu: Optional family-level MTU override.
         sampling_input: True if input sampling is enabled at the family level.
         sampling_output: True if output sampling is enabled at the family level.
@@ -49,6 +55,7 @@ class FamilyInetSpec:
     addresses: List[str] = field(default_factory=list)
     primary_address: Optional[str] = None
     preferred_address: Optional[str] = None
+    vrrp_virtual_address: Optional[str] = None
     mtu: Optional[int] = None
     sampling_input: bool = False
     sampling_output: bool = False

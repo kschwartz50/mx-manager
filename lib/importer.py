@@ -33,7 +33,7 @@ from lib.interface.factory import InterfaceFactory
 from lib.log_utils import get_logger
 from lib.parsers.base import BaseMXParser
 from lib.parsers.helpers import sanitize_junos_xml
-from lib.parsers.junos_mx import MXParser21x
+from lib.parsers.junos_mx import MXParser21x, MXParser23x
 from lib.policy_options.factory import PolicyOptionsFactory
 from lib.protocols_ports.factory import ProtocolsPortsFactory
 from lib.registry.graph import DataRegistry
@@ -61,6 +61,7 @@ class MXImporter:
         self.registry = registry
         self._parser_map: Dict[str, Type[BaseMXParser]] = {
             "21.x": MXParser21x,
+            "23.x": MXParser23x,
         }
 
     def import_xml(

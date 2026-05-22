@@ -162,7 +162,13 @@ class InterfaceResolver:
         return addresses
 
     def get_unit_v4_address_context(self, unit_uid: str) -> List[str]:
-        """Returns v4 addresses annotated with primary/preferred flags."""
+        """Returns v4 addresses annotated with primary/preferred flags.
+
+        When a VRRP virtual-address is configured it is prepended to the list
+        with a ``(vrrp-primary)`` tag and the physical configured addresses
+        follow unannotated.  This makes the gateway IP immediately visible in
+        exports without altering the truthful ``addresses`` list.
+        """
         node = self.r.storage.get(unit_uid)
         if not isinstance(node, UnitInterface) or not node.inet:
             return []
@@ -170,6 +176,7 @@ class InterfaceResolver:
             node.inet.addresses,
             primary=node.inet.primary_address,
             preferred=node.inet.preferred_address,
+            vrrp_virtual_address=node.inet.vrrp_virtual_address,
         )
 
     def get_unit_v6_address_context(self, unit_uid: str) -> List[str]:
@@ -211,6 +218,7 @@ class InterfaceResolver:
             "addresses": self.get_unit_addresses(unit_uid),
             "v4_address_context": self.get_unit_v4_address_context(unit_uid),
             "v6_address_context": self.get_unit_v6_address_context(unit_uid),
+            "vrrp_virtual_address": node.inet.vrrp_virtual_address if node.inet else None,
         }
 
     def hydrate_base_interface(self, iface_uid: str) -> Optional[Dict[str, Any]]:
@@ -270,9 +278,28 @@ class InterfaceResolver:
         addresses: List[str],
         primary: Optional[str],
         preferred: Optional[str],
+        vrrp_virtual_address: Optional[str] = None,
     ) -> List[str]:
-        """Formats addresses with ``(primary)``, ``(preferred)``, or both."""
+        """Formats addresses with ``(primary)``, ``(preferred)``, or both.
+
+        When ``vrrp_virtual_address`` is set it is prepended as
+        ``"<vip> (vrrp-primary)"`` and the physical configured addresses are
+        listed below without a primary annotation (the VIP has taken that
+        role).  This keeps ``addresses`` truthful to the XML while making the
+        effective gateway IP immediately visible in exported output.
+        """
         annotated: List[str] = []
+
+        if vrrp_virtual_address:
+            # VIP is the effective primary; surface it first.
+            annotated.append(f"{vrrp_virtual_address} (vrrp-primary)")
+            for addr in addresses:
+                if addr == preferred:
+                    annotated.append(f"{addr} (preferred)")
+                else:
+                    annotated.append(addr)
+            return annotated
+
         for addr in addresses:
             if addr == primary and addr == preferred:
                 annotated.append(f"{addr} (primary/preferred)")

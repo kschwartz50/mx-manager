@@ -22,8 +22,12 @@ from typing import List, Literal, Optional
 
 from lib.registry.objects import BaseNode
 
-# Junos routing-instance types seen on MX
-InstanceType = Literal["virtual-router", "vrf", "forwarding", "virtual-switch", "vpls"]
+# Junos routing-instance types seen on MX.
+# ``"master"`` is a synthetic type used for the implicit default routing
+# instance (global inet.0 / inet6.0), which has no explicit instance-type
+# stanza in the Junos XML — the parser materialises it from
+# ``<routing-options>`` and ``<protocols><bgp>`` at the config root.
+InstanceType = Literal["virtual-router", "vrf", "forwarding", "virtual-switch", "vpls", "master"]
 
 # Next-hop kinds
 NextHopKind = Literal[

@@ -336,21 +336,72 @@ class MXParser21x(BaseMXParser):
     # ------------------------------------------------------------------
 
     def parse_routing_instances(self) -> List[RoutingInstanceDict]:
-        """Extract all user-defined routing instances from ``<routing-instances>``.
+        """Extract routing instances from the XML, including the default instance.
 
-        Notes:
-            The implicit ``master`` routing instance (global inet.0 / inet6.0)
-            is not materialised here — it has no ``<routing-instances>`` stanza
-            in the XML.  If you need master-instance static routes, look under
-            ``<routing-options>`` at the config root.  That can be added as a
-            follow-up once the basic slice is validated.
+        The default (master) routing instance has no ``<routing-instances>``
+        stanza — its static routes live under ``<routing-options>`` and its
+        BGP groups under ``<protocols><bgp>`` at the config root.  It is
+        materialised first so it appears at the top of every export and
+        resolver walk.  Named instances follow in document order.
         """
         instances: List[RoutingInstanceDict] = []
+
+        # Always materialise the default instance first.  It is omitted only
+        # when the config carries neither static routes nor BGP groups at the
+        # global level (e.g. a pure L2 config file).
+        default_ri = self._parse_default_routing_instance()
+        if default_ri is not None:
+            instances.append(default_ri)
+
         ri_root = self.root.find("./routing-instances")
         if ri_root is not None:
             for ri_elem in ri_root.findall("instance"):
                 instances.append(self._process_routing_instance(ri_elem))
         return instances
+
+    def _parse_default_routing_instance(self) -> Optional[RoutingInstanceDict]:
+        """Materialises the implicit Junos default (master) routing instance.
+
+        In the Junos XML schema the default routing instance has no
+        ``<instance>`` stanza under ``<routing-instances>``.  Its config
+        is split across two top-level stanzas:
+
+        * ``<routing-options><static>``   — static routes for inet.0
+        * ``<protocols><bgp>``            — global BGP peer groups
+
+        Returns ``None`` when neither stanza is present so that pure-L2
+        config files do not produce a spurious empty entry.
+        """
+        static_routes: List[StaticRouteDict] = []
+        bgp_groups: List[BgpGroupDict] = []
+
+        # 1. Global static routes
+        static_root = self.root.find("./routing-options/static")
+        if static_root is not None:
+            for route_elem in static_root.findall("route"):
+                dest = get_text(route_elem, "name")
+                if dest:
+                    static_routes.append(
+                        self._process_static_route(dest, route_elem)
+                    )
+
+        # 2. Global BGP groups
+        bgp_root = self.root.find("./protocols/bgp")
+        if bgp_root is not None:
+            for group_elem in bgp_root.findall("group"):
+                bgp_groups.append(self._process_bgp_group(group_elem))
+
+        if not static_routes and not bgp_groups:
+            return None
+
+        return {
+            "name": "default",
+            "instance_type": "master",
+            "description": None,
+            "interfaces": [],
+            "static_routes": static_routes,
+            "bgp_groups": bgp_groups,
+        }
 
     def _process_routing_instance(self, elem: ET.Element) -> RoutingInstanceDict:
         name = get_text(elem, "name") or "unknown"
@@ -625,6 +676,16 @@ class MXParser21x(BaseMXParser):
                 family_dict["primary_address"] = addr_name
             if addr.find("preferred") is not None:
                 family_dict["preferred_address"] = addr_name
+            # VRRP virtual-address: present when this address stanza carries a
+            # <vrrp-group> block.  Capture the first VIP found across all
+            # address stanzas in the family — multiple groups are unusual and
+            # the first one is the authoritative gateway address.
+            if "vrrp_virtual_address" not in family_dict:
+                for vrrp_group in addr.findall("vrrp-group"):
+                    vip = get_text(vrrp_group, "virtual-address")
+                    if vip:
+                        family_dict["vrrp_virtual_address"] = vip
+                        break
 
         mtu = get_int(elem, "mtu")
         if mtu is not None:
@@ -923,6 +984,74 @@ class MXParser21x(BaseMXParser):
             syslog_flag = True
 
         return actions, count, log_flag, syslog_flag
+
+
+# ---------------------------------------------------------------------------
+# Junos 23.x parser
+# ---------------------------------------------------------------------------
+
+
+class MXParser23x(MXParser21x):
+    """Parser for Junos 23.x MX configurations.
+
+    The core XML grammar for interfaces, routing-instances, policy-options,
+    and firewall filters is stable across the 21.x → 23.x range, so this
+    class inherits all slice-parsing logic from ``MXParser21x`` without
+    modification.
+
+    The only override required for 23.x is ``_classify_interface_kind``,
+    which adds interface prefixes that became common on newer MX line-cards
+    and fixed-chassis platforms shipping with 23.x:
+
+    * ``oe-``  — OTN Ethernet (MX2020, PTX platforms running MX OS)
+    * ``ext-`` — extended/internal fabric links on MX304 and MX10008
+    * ``cbp``  — control-plane bridge ports (MX10003/MX10008 internal fabric)
+    * ``jsrv`` — Junos services interface (present in some 23.x system dumps)
+    * ``dsc``  — discard interface (replaces /dev/null routes in some configs)
+    * ``mtun`` — multicast tunnel interface (more visible in 23.x EVPN dumps)
+    * ``lc-``  — line-card internal management link (MX2010/MX2020)
+    * ``pip0``  — passive-monitoring interface
+
+    All other grammar (VRRP virtual-address, firewall filter, BGP, LACP,
+    MC-AE, etc.) is handled identically by the inherited 21.x methods.
+
+    23.x-specific grammar that is NOT yet modeled
+    ----------------------------------------------
+    * EVPN VXLAN ``<protocols><evpn>`` and ``<bridge-domains>`` stanzas —
+      these are absent from the current slice set and will require dedicated
+      factory + resolver work when added.
+    * BGP flow-spec ``<flow>`` route entries inside routing-instances — parsed
+      as part of the generic BGP group walk but the per-flow-route detail is
+      discarded; no known consumer yet.
+    * Segment-routing / MPLS traffic-engineering extensions — not modeled.
+    """
+
+    def _classify_interface_kind(self, name: str) -> "InterfaceKind":
+        """Extends 21.x classification with 23.x-era interface prefixes.
+
+        Falls through to the parent method for all names not listed here,
+        preserving the defensive ``"physical"`` fallback for unknowns.
+        """
+        # OTN Ethernet and extended fabric links (newer fixed/modular chassis)
+        if name.startswith(("oe-", "ext-")):
+            return "physical"
+
+        # Internal fabric / control-plane bridge ports — model as physical;
+        # they never carry user traffic but appear in full config dumps.
+        if name.startswith(("cbp", "lc-")):
+            return "physical"
+
+        # Discard, multicast-tunnel, passive-monitoring, Junos-services —
+        # these are all pseudo-interfaces with no meaningful L2/L3 config;
+        # tunnel is the closest structural match.
+        if name in ("dsc", "mtun", "pip0", "jsrv") or name.startswith(
+            ("dsc", "mtun", "pip", "jsrv")
+        ):
+            return "tunnel"
+
+        # Delegate everything else (ge-, xe-, et-, ae, irb, lo0, fxp, …)
+        # to the unchanged 21.x classifier.
+        return super()._classify_interface_kind(name)
 
 
 # end of lib/parsers/junos_mx.py
