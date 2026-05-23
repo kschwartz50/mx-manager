@@ -99,7 +99,7 @@ through that container. Orphaned nodes — nodes with no path from `ConfigRoot`
 
 ### 2.5 Bidirectional Edge Integrity
 
-`GraphController` maintains `forward_map` and `reverse_map` symmetrically.
+`GraphRegistry` maintains `forward_map` and `reverse_map` symmetrically.
 All edge creation goes through `add_relationship()`. Never mutate
 `forward_map` or `reverse_map` directly.
 

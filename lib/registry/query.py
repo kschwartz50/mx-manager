@@ -1,7 +1,7 @@
 """Graph traversal engine (Tier 3).
 
 Decoupled from any specific configuration slice. Operates purely on labels
-and nodes in the registry's underlying GraphController.
+and nodes in the registry's underlying GraphRegistry.
 """
 
 from typing import Any, Dict, List, Optional, Set

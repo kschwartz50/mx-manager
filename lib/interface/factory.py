@@ -158,14 +158,40 @@ class InterfaceFactory:
         kind = iface_dict.get("kind", "physical")
         name = iface_dict["name"]
 
+        def _to_bool(v):
+            if isinstance(v, bool):
+                return v
+            if isinstance(v, str):
+                return v.lower() in ("1", "true", "yes", "on")
+            return bool(v)
+
+        def _to_int_or_none(v):
+            if v is None:
+                return None
+            if isinstance(v, int):
+                return v
+            if isinstance(v, str) and v.isdigit():
+                return int(v)
+            try:
+                return int(v)
+            except Exception:
+                return None
+
+        def _to_str_or_none(v):
+            if v is None:
+                return None
+            return str(v)
+
         common_kwargs = dict(
-            name=name,
-            description=iface_dict.get("description"),
-            mtu=iface_dict.get("mtu"),
-            encapsulation=iface_dict.get("encapsulation"),
-            vlan_tagging=iface_dict.get("vlan_tagging", False),
-            flexible_vlan_tagging=iface_dict.get("flexible_vlan_tagging", False),
-            native_vlan_id=iface_dict.get("native_vlan_id"),
+            name=str(name),
+            description=_to_str_or_none(iface_dict.get("description")),
+            mtu=_to_int_or_none(iface_dict.get("mtu")),
+            encapsulation=_to_str_or_none(iface_dict.get("encapsulation")),
+            vlan_tagging=_to_bool(iface_dict.get("vlan_tagging", False)),
+            flexible_vlan_tagging=_to_bool(
+                iface_dict.get("flexible_vlan_tagging", False)
+            ),
+            native_vlan_id=_to_int_or_none(iface_dict.get("native_vlan_id")),
         )
 
         if kind == "physical":

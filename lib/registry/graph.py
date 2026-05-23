@@ -29,7 +29,7 @@ class RegistryEncoder(json.JSONEncoder):
         return super().default(o)
 
 
-class GraphController:
+class GraphRegistry:
     """Bidirectional labeled graph with edge properties.
 
     Forward: source_uid -> {label -> {target_uid -> {properties}}}
@@ -70,7 +70,7 @@ class DataRegistry:
     def __init__(self):
         self.storage: Dict[str, BaseNode] = {}
         self.index: Dict[str, Dict[str, str]] = {}
-        self.graph = GraphController()
+        self.graph = GraphRegistry()
 
     def register_node(self, node: BaseNode, unique_key: str) -> str:
         node_type = node.type
