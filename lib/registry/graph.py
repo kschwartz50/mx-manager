@@ -92,7 +92,7 @@ class DataRegistry:
         }
         with open(filepath, "w") as f:
             json.dump(data, f, indent=4, cls=RegistryEncoder)
-        logger.info(f"Registry snapshot saved: {filepath}")
+        logger.info(f"Registry state saved: {filepath}")
 
     def load_from_json(self, filepath: Path):
         """Not implemented — raises to prevent silent data loss.

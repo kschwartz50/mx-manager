@@ -1,7 +1,7 @@
 """Top-level orchestrator for mx-manager.
 
 Owns the per-run runtime resources (workspace, registry) and wires the
-import -> snapshot -> export flow so the CLI entry point stays thin.
+import -> registry state -> export flow so the CLI entry point stays thin.
 """
 
 from pathlib import Path
@@ -45,7 +45,7 @@ class Controller:
 
         # Filled in by _setup_file_paths() once we know the input file.
         self.config_file_basename: Optional[str] = None
-        self.snapshot_filename: Optional[str] = None
+        self.registry_state_filename: Optional[str] = None
         self.json_export_filename: Optional[str] = None
         self.excel_export_filename: Optional[str] = None
 
@@ -59,7 +59,7 @@ class Controller:
         Steps:
             1. Copy the source XML into ``data/source/``.
             2. Parse + populate the in-memory registry.
-            3. Persist a JSON snapshot of the registry to ``data/snapshots/``.
+            3. Persist the registry state as JSON to ``data/registry/``.
 
         Args:
             file_path: Path to the source XML (absolute or relative).
@@ -69,7 +69,7 @@ class Controller:
         """
         logger.info("Workspace base_dir:     %s", self.workspace_manager.base_dir)
         logger.info("Workspace source_dir:   %s", self.workspace_manager.source_dir)
-        logger.info("Workspace snapshot_dir: %s", self.workspace_manager.snapshot_dir)
+        logger.info("Workspace registry_dir: %s", self.workspace_manager.registry_dir)
         logger.info("Workspace export_dir:   %s", self.workspace_manager.export_dir)
         logger.info("Import file: %s", file_path)
 
@@ -81,10 +81,10 @@ class Controller:
         # 2) Parse + populate the registry.
         config_root_uid = self.importer.import_xml(local_copy, original_path=file_path)
 
-        # 3) Persist a snapshot of the whole registry for future inspection.
-        if self.snapshot_filename:
-            self.registry.save_to_json(Path(self.snapshot_filename))
-            logger.info("Wrote registry snapshot to: %s", self.snapshot_filename)
+        # 3) Persist the whole registry state for future inspection.
+        if self.registry_state_filename:
+            self.registry.save_to_json(Path(self.registry_state_filename))
+            logger.info("Wrote registry state to: %s", self.registry_state_filename)
 
         logger.info("Import completed for file: %s", file_path)
         return config_root_uid
@@ -122,14 +122,14 @@ class Controller:
     # ----------------------------------------------------------------------
 
     def _setup_file_paths(self, file_path: str) -> None:
-        """Derives snapshot/export filenames from the input config basename."""
+        """Derives registry state/export filenames from the input config basename."""
         path = Path(file_path)
         self.config_file_basename = path.stem
         logger.debug("Config file basename set to: %s", self.config_file_basename)
 
-        self.snapshot_filename = str(
-            self.workspace_manager.get_snapshot_file(
-                f"{self.config_file_basename}_registry.json"
+        self.registry_state_filename = str(
+            self.workspace_manager.get_registry_file(
+                f"{self.config_file_basename}_state.json"
             )
         )
         self.json_export_filename = str(
@@ -142,7 +142,7 @@ class Controller:
                 f"{self.config_file_basename}_audit.xlsx"
             )
         )
-        logger.debug("Snapshot filename: %s", self.snapshot_filename)
+        logger.debug("Registry state filename: %s", self.registry_state_filename)
         logger.debug("JSON export filename: %s", self.json_export_filename)
         logger.debug("Excel export filename: %s", self.excel_export_filename)
 

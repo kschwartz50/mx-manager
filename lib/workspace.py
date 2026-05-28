@@ -10,8 +10,8 @@ class WorkspaceManager:
         self.base_dir = Path(base_dir).resolve()
         self.source_dir = self.base_dir / "source"
         self.source_dir.mkdir(parents=True, exist_ok=True)
-        self.snapshot_dir = self.base_dir / "snapshots"
-        self.snapshot_dir.mkdir(parents=True, exist_ok=True)
+        self.registry_dir = self.base_dir / "registry"
+        self.registry_dir.mkdir(parents=True, exist_ok=True)
         self.export_dir = self.base_dir / "exports"
         self.export_dir.mkdir(parents=True, exist_ok=True)
 
@@ -21,8 +21,8 @@ class WorkspaceManager:
         dst.write_bytes(src.read_bytes())
         return dst
 
-    def get_snapshot_file(self, filename: str) -> Path:
-        return self.snapshot_dir / filename
+    def get_registry_file(self, filename: str) -> Path:
+        return self.registry_dir / filename
 
     def get_export_file(self, filename: str) -> Path:
         return self.export_dir / filename
